@@ -4,8 +4,9 @@
 #include <string.h>
 #include "AST.h"
 
-
+//global variables which can be used in other .c .h
 struct PROGRAM *head;
+FILE *fp; 
 void yyerror(char* text) {
 
     fprintf(stderr, "%s\n", text);
@@ -49,7 +50,7 @@ void yyerror(char* text) {
 %type <ptr_declaration> Declaration DeclList
 %type <ptr_identifier> Identifier IdentList
 %type <ptr_function> Function FuncList
-%type <ptr_parameter> ParamList
+%type <ptr_parameter> Parameter ParamList 
 %type <ptr_compoundstmt> CompoundStmt
 %type <ptr_stmt> Stmt StmtList
 %type <ptr_assign> Assign AssignStmt 
@@ -81,6 +82,7 @@ void yyerror(char* text) {
 %start Program
 %%
 //입력이 없는 경우는 main() 에서 head = NULL 인 상태로 처리됨.
+//"DeclList" in "Program" denotes global declaration
 Program: DeclList FuncList {
             struct PROGRAM *prog = (struct PROGRAM*) malloc (sizeof (struct PROGRAM));
             prog->decl = $1;
@@ -123,7 +125,7 @@ FuncList: Function {
             $$ = func;
         }
         ;
-Declaration: Type IdentList {
+Declaration: Type IdentList ';' {
                 struct DECLARATION *decl = (struct DECLARATION*) malloc (sizeof (struct DECLARATION));
                 decl->t = $1;
                 decl->id = $2;
@@ -155,18 +157,23 @@ Identifier: ID {
             $$ = iden;
            }
           ;
-ParamList: Type Identifier {
+ParamList: Parameter {
+            struct PARAMETER *param;
+            param = $1;
+            param->prev = NULL;
+            $$ = param;
+        }
+         | ParamList ',' Parameter {
+            struct PARAMETER *param;
+            param = $3;
+            param->prev = $1;
+            $$ = param;
+        }
+Parameter: Type Identifier {
             struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
             param->t = $1;
             param->id = $2;
             param->prev = NULL;
-            $$ = param;
-        }
-         | ParamList ',' Type Identifier {
-            struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
-            param->t = $3;
-            param->id = $4;
-            param->prev = $1;
             $$ = param;
         }
 Function: Type ID '(' ')' CompoundStmt {
@@ -538,7 +545,6 @@ int main(int argc, char* argv[]) {
     //헤드 초기화, 만일 토큰이 없다면 dfs(), bfs() 를 작동하지 않게 함.
     head = NULL;
     
-    FILE *fp;
     //print AST
     fp = fopen("tree.txt","w");
     if(!yyparse())

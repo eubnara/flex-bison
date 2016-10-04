@@ -49,7 +49,7 @@ void yyerror(char* text) {
 %type <ptr_declaration> Declaration DeclList
 %type <ptr_identifier> Identifier IdentList
 %type <ptr_function> Function FuncList
-%type <ptr_parameter> ParamList
+%type <ptr_parameter> Parameter ParamList 
 %type <ptr_compoundstmt> CompoundStmt
 %type <ptr_stmt> Stmt StmtList
 %type <ptr_assign> Assign AssignStmt 
@@ -156,18 +156,23 @@ Identifier: ID {
             $$ = iden;
            }
           ;
-ParamList: Type Identifier {
+ParamList: Parameter {
+            struct PARAMETER *param;
+            param = $1;
+            param->prev = NULL;
+            $$ = param;
+        }
+         | ParamList ',' Parameter {
+            struct PARAMETER *param;
+            param = $3;
+            param->prev = $1;
+            $$ = param;
+        }
+Parameter: Type Identifier {
             struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
             param->t = $1;
             param->id = $2;
             param->prev = NULL;
-            $$ = param;
-        }
-         | ParamList ',' Type Identifier {
-            struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
-            param->t = $3;
-            param->id = $4;
-            param->prev = $1;
             $$ = param;
         }
 Function: Type ID '(' ')' CompoundStmt {

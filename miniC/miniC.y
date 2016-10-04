@@ -81,6 +81,7 @@ void yyerror(char* text) {
 %start Program
 %%
 //입력이 없는 경우는 main() 에서 head = NULL 인 상태로 처리됨.
+//"DeclList" in "Program" denotes global declaration
 Program: DeclList FuncList {
             struct PROGRAM *prog = (struct PROGRAM*) malloc (sizeof (struct PROGRAM));
             prog->decl = $1;
@@ -123,7 +124,7 @@ FuncList: Function {
             $$ = func;
         }
         ;
-Declaration: Type IdentList {
+Declaration: Type IdentList ';' {
                 struct DECLARATION *decl = (struct DECLARATION*) malloc (sizeof (struct DECLARATION));
                 decl->t = $1;
                 decl->id = $2;

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "AST.h"
+#include "symbolTable.h"
 
 //global variables which can be used in other .c .h
 struct PROGRAM *head;
@@ -11,6 +12,18 @@ void yyerror(char* text) {
 
     fprintf(stderr, "%s\n", text);
 }
+/*
+void lyyerror(YYLTYPE t, char *s, ...)
+{
+    va_list ap;
+    va_start(ap, s);
+
+    if(t.first_line)
+        fprintf(stderr, "%d.%d-%d.%d: error: ", t.first_line, t.first_column, t.last_line, t.last_column);
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
+}
+*/
 %}
 
 %union{
@@ -539,7 +552,8 @@ If_s: IF Expr Stmt %prec LOWER_THAN_ELSE {
       }
       ;
 %%
-void dfs();
+#include "symbolTable.h"
+void printAST();
 void bfs();
 int main(int argc, char* argv[]) {
     //헤드 초기화, 만일 토큰이 없다면 dfs(), bfs() 를 작동하지 않게 함.
@@ -548,8 +562,7 @@ int main(int argc, char* argv[]) {
     //print AST
     fp = fopen("tree.txt","w");
     if(!yyparse())
-        dfs();
-
+        printAST();
     fprintf(fp, "\n");
     close(fp);
     //make Symbol table
@@ -559,10 +572,14 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-
-void dfs() {
-
-
+void printAST() {
+    //TODO
+    if(head == NULL)
+        exit(1);
+    if(head->decl != NULL)
+        visitDeclaration(head->decl);
+    if(head->func != NULL)
+        visitFunction(head->func);
 }
 
 void bfs() {

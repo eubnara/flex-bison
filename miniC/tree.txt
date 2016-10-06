@@ -1,6 +1,20 @@
-Int main Int a;
+int main ()
 {
-return;
-
+int i;
+while (i < 3)
+{
+{
+int a;
+a  = a + i;
+do{
+if (i < 3)
+printf(3);
 }
+while (i < 3.000230);
+}
+a  = 2;
+}
+return 0;
+}
+
 

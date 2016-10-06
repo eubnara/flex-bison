@@ -79,7 +79,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 15 "miniC.y" /* yacc.c:1909  */
+#line 28 "miniC.y" /* yacc.c:1909  */
 
     struct PROGRAM       *ptr_program;
     struct DECLARATION   *ptr_declaration;
@@ -101,11 +101,12 @@ union YYSTYPE
     struct RELAOP        *ptr_relaop;
     struct EQLTOP        *ptr_eqltop;
     Type_e type;
+    //TODO int, float to char*
     int intnum;
     float floatnum;
     char* id;
 
-#line 109 "miniC.tab.h" /* yacc.c:1909  */
+#line 110 "miniC.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

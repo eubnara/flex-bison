@@ -3,13 +3,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include "AST.h"
-
-
+#include "print.h"
+//global variables which can be used in other .c .h
 struct PROGRAM *head;
+FILE *fp; 
 void yyerror(char* text) {
 
     fprintf(stderr, "%s\n", text);
 }
+/*
+void lyyerror(YYLTYPE t, char *s, ...)
+{
+    va_list ap;
+    va_start(ap, s);
+
+    if(t.first_line)
+        fprintf(stderr, "%d.%d-%d.%d: error: ", t.first_line, t.first_column, t.last_line, t.last_column);
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
+}
+*/
 %}
 
 %union{
@@ -33,6 +46,7 @@ void yyerror(char* text) {
     struct RELAOP        *ptr_relaop;
     struct EQLTOP        *ptr_eqltop;
     Type_e type;
+    //TODO int, float to char*
     int intnum;
     float floatnum;
     char* id;
@@ -49,7 +63,7 @@ void yyerror(char* text) {
 %type <ptr_declaration> Declaration DeclList
 %type <ptr_identifier> Identifier IdentList
 %type <ptr_function> Function FuncList
-%type <ptr_parameter> ParamList
+%type <ptr_parameter> Parameter ParamList 
 %type <ptr_compoundstmt> CompoundStmt
 %type <ptr_stmt> Stmt StmtList
 %type <ptr_assign> Assign AssignStmt 
@@ -81,6 +95,7 @@ void yyerror(char* text) {
 %start Program
 %%
 //입력이 없는 경우는 main() 에서 head = NULL 인 상태로 처리됨.
+//"DeclList" in "Program" denotes global declaration
 Program: DeclList FuncList {
             struct PROGRAM *prog = (struct PROGRAM*) malloc (sizeof (struct PROGRAM));
             prog->decl = $1;
@@ -123,7 +138,7 @@ FuncList: Function {
             $$ = func;
         }
         ;
-Declaration: Type IdentList {
+Declaration: Type IdentList ';' {
                 struct DECLARATION *decl = (struct DECLARATION*) malloc (sizeof (struct DECLARATION));
                 decl->t = $1;
                 decl->id = $2;
@@ -155,18 +170,23 @@ Identifier: ID {
             $$ = iden;
            }
           ;
-ParamList: Type Identifier {
+ParamList: Parameter {
+            struct PARAMETER *param;
+            param = $1;
+            param->prev = NULL;
+            $$ = param;
+        }
+         | ParamList ',' Parameter {
+            struct PARAMETER *param;
+            param = $3;
+            param->prev = $1;
+            $$ = param;
+        }
+Parameter: Type Identifier {
             struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
             param->t = $1;
             param->id = $2;
             param->prev = NULL;
-            $$ = param;
-        }
-         | ParamList ',' Type Identifier {
-            struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
-            param->t = $3;
-            param->id = $4;
-            param->prev = $1;
             $$ = param;
         }
 Function: Type ID '(' ')' CompoundStmt {
@@ -492,17 +512,17 @@ Eqltop: EQ {
          $$ = eqltop;
       }
       ;
-While_s: WHILE Expr Stmt {
+While_s: WHILE '(' Expr ')'  Stmt  {
            struct WHILE_S* while_s = (struct WHILE_S*) malloc (sizeof(struct WHILE_S));
            while_s->do_while = false;
-           while_s->cond = $2;
-           while_s->stmt = $3;
+           while_s->cond = $3;
+           while_s->stmt = $5;
            $$ = while_s;
         }
-         | DO Stmt WHILE Expr ';' {
+         | DO  Stmt  WHILE '(' Expr ')' ';' {
            struct WHILE_S* while_s = (struct WHILE_S*) malloc (sizeof(struct WHILE_S));
            while_s->do_while = true;
-           while_s->cond = $4;
+           while_s->cond = $5;
            while_s->stmt = $2;
            $$ = while_s;
         }
@@ -516,34 +536,32 @@ For_s: FOR '(' Assign ';' Expr ';' Assign ')' Stmt {
            $$ = for_s;
         }
        ;
-If_s: IF Expr Stmt %prec LOWER_THAN_ELSE {
+If_s: IF '(' Expr ')' Stmt %prec LOWER_THAN_ELSE {
        struct IF_S *if_s = (struct IF_S*) malloc (sizeof(struct IF_S));
-       if_s->cond=$2;
-       if_s->if_=$3;
+       if_s->cond=$3;
+       if_s->if_=$5;
        if_s->else_=NULL;
        $$ = if_s;
     }
-      | IF Expr Stmt ELSE Stmt{
+      | IF '(' Expr ')' Stmt ELSE Stmt{
        struct IF_S *if_s = (struct IF_S*) malloc (sizeof(struct IF_S));
-       if_s->cond=$2;
-       if_s->if_=$3;
-       if_s->else_=$5;
+       if_s->cond=$3;
+       if_s->if_=$5;
+       if_s->else_=$7;
        $$ = if_s;
       }
       ;
 %%
-void dfs();
+void printAST();
 void bfs();
 int main(int argc, char* argv[]) {
     //헤드 초기화, 만일 토큰이 없다면 dfs(), bfs() 를 작동하지 않게 함.
     head = NULL;
     
-    FILE *fp;
     //print AST
     fp = fopen("tree.txt","w");
     if(!yyparse())
-        dfs();
-
+        printAST();
     fprintf(fp, "\n");
     close(fp);
     //make Symbol table
@@ -553,10 +571,14 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-
-void dfs() {
-
-
+void printAST() {
+    //TODO
+    if(head == NULL)
+        exit(1);
+    if(head->decl != NULL)
+        visitDeclaration(head->decl);
+    if(head->func != NULL)
+        visitFunction(head->func);
 }
 
 void bfs() {

@@ -68,15 +68,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include "AST.h"
-
-
+#include "print.h"
+#include "symboltable.h"
+//global variables which can be used in other .c .h
 struct PROGRAM *head;
+FILE *fp;   //for AST
+FILE *fp2;  //for symboltable 
 void yyerror(char* text) {
 
     fprintf(stderr, "%s\n", text);
 }
+/*
+void lyyerror(YYLTYPE t, char *s, ...)
+{
+    va_list ap;
+    va_start(ap, s);
 
-#line 80 "miniC.tab.c" /* yacc.c:339  */
+    if(t.first_line)
+        fprintf(stderr, "%d.%d-%d.%d: error: ", t.first_line, t.first_column, t.last_line, t.last_column);
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
+}
+*/
+
+#line 95 "miniC.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -94,7 +109,10 @@ void yyerror(char* text) {
 # define YYERROR_VERBOSE 0
 #endif
 
-
+/* In a future release of Bison, this section will be replaced
+   by #include "miniC.tab.h".  */
+#ifndef YY_YY_MINIC_TAB_H_INCLUDED
+# define YY_YY_MINIC_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -142,7 +160,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 15 "miniC.y" /* yacc.c:355  */
+#line 30 "miniC.y" /* yacc.c:355  */
 
     struct PROGRAM       *ptr_program;
     struct DECLARATION   *ptr_declaration;
@@ -164,11 +182,12 @@ union YYSTYPE
     struct RELAOP        *ptr_relaop;
     struct EQLTOP        *ptr_eqltop;
     Type_e type;
+    //TODO int, float to char*
     int intnum;
     float floatnum;
     char* id;
 
-#line 172 "miniC.tab.c" /* yacc.c:355  */
+#line 191 "miniC.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -179,11 +198,11 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-
+#endif /* !YY_YY_MINIC_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 187 "miniC.tab.c" /* yacc.c:358  */
+#line 206 "miniC.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -425,16 +444,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   314
+#define YYLAST   308
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  38
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  29
+#define YYNNTS  30
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  70
+#define YYNRULES  71
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  131
+#define YYNSTATES  138
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -452,15 +471,15 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      29,    30,     2,     2,    32,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    37,
+      29,    30,     2,     2,    33,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    32,
        2,    27,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,    33,     2,    34,     2,     2,     2,     2,     2,     2,
+       2,    34,     2,    35,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    35,     2,    36,     2,     2,     2,     2,
+       2,     2,     2,    36,     2,    37,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -483,14 +502,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    84,    84,    91,    98,   106,   109,   116,   119,   126,
-     133,   136,   143,   150,   158,   165,   172,   181,   190,   191,
-     195,   206,   212,   219,   225,   232,   238,   244,   250,   256,
-     262,   268,   274,   280,   284,   291,   299,   307,   313,   320,
-     321,   328,   335,   338,   342,   352,   363,   374,   385,   396,
-     402,   408,   414,   420,   427,   433,   440,   445,   452,   457,
-     463,   468,   473,   478,   484,   489,   495,   502,   510,   519,
-     526
+       0,   101,   101,   108,   115,   123,   126,   133,   136,   143,
+     150,   153,   160,   167,   175,   181,   187,   194,   203,   212,
+     213,   217,   228,   234,   241,   247,   254,   260,   266,   272,
+     278,   284,   290,   296,   302,   306,   313,   321,   329,   335,
+     342,   343,   350,   357,   360,   364,   374,   385,   396,   407,
+     418,   424,   430,   436,   442,   449,   455,   462,   467,   474,
+     479,   485,   490,   495,   500,   506,   511,   517,   524,   532,
+     541,   548
 };
 #endif
 
@@ -502,12 +521,13 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "INTNUM", "FLOATNUM", "ID", "INT",
   "FLOAT", "MINUS", "PLUS", "MULT", "DIV", "LE", "GE", "EQ", "NE", "GT",
   "LT", "IF", "ELSE", "FOR", "WHILE", "DO", "RETURN", "DQUOT_T", "SQUOT_T",
-  "AMP_T", "'='", "UNARY", "'('", "')'", "LOWER_THAN_ELSE", "','", "'['",
-  "']'", "'{'", "'}'", "';'", "$accept", "Program", "DeclList", "FuncList",
-  "Declaration", "IdentList", "Identifier", "ParamList", "Function",
-  "Type", "CompoundStmt", "StmtList", "Stmt", "AssignStmt", "Assign",
-  "CallStmt", "Call", "ArgList", "Arg", "RetStmt", "Expr", "Id_s",
-  "Addiop", "Multop", "Relaop", "Eqltop", "While_s", "For_s", "If_s", YY_NULLPTR
+  "AMP_T", "'='", "UNARY", "'('", "')'", "LOWER_THAN_ELSE", "';'", "','",
+  "'['", "']'", "'{'", "'}'", "$accept", "Program", "DeclList", "FuncList",
+  "Declaration", "IdentList", "Identifier", "ParamList", "Parameter",
+  "Function", "Type", "CompoundStmt", "StmtList", "Stmt", "AssignStmt",
+  "Assign", "CallStmt", "Call", "ArgList", "Arg", "RetStmt", "Expr",
+  "Id_s", "Addiop", "Multop", "Relaop", "Eqltop", "While_s", "For_s",
+  "If_s", YY_NULLPTR
 };
 #endif
 
@@ -519,14 +539,14 @@ static const yytype_uint16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,    61,   282,    40,
-      41,   283,    44,    91,    93,   123,   125,    59
+      41,   283,    59,    44,    91,    93,   123,   125
 };
 # endif
 
-#define YYPACT_NINF -66
+#define YYPACT_NINF -60
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-66)))
+  (!!((Yystate) == (-60)))
 
 #define YYTABLE_NINF -1
 
@@ -537,20 +557,20 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      14,   -66,   -66,     6,    14,    14,   -66,   -66,    28,   -66,
-      14,   -66,   -66,    38,   -24,    31,   -66,    37,    12,    57,
-      71,    43,    62,    71,    33,    49,   -66,   124,   -66,    43,
-      14,   -66,   -66,    32,     8,    68,     8,   157,    46,   -66,
-     -66,    50,    71,   -66,   130,   -66,   -66,    63,   -66,    64,
-     -66,   -66,   -66,   -66,   -66,    71,     8,    76,     8,   -66,
-     -66,     1,     8,     8,   -66,   104,   -66,    94,   104,    82,
-     -66,   187,   150,   -66,   -66,   -66,   -66,   -66,   297,   -66,
-      66,   -66,   297,   237,     8,   -66,   274,   -66,   -66,   -66,
-     -66,   -66,   -66,   -66,   -66,   -66,   -66,    85,     8,     8,
-       8,     8,    -2,    70,   -66,     8,   -66,   -66,   -66,     8,
-      83,   264,   -66,   157,   297,   297,   297,   297,     8,   197,
-     -66,     8,   -66,   -66,   227,   -66,   297,    94,    93,   157,
-     -66
+      46,   -60,   -60,    11,    46,    46,   -60,   -60,    14,   -60,
+      46,   -60,   -60,    54,   -14,    33,   -60,    38,    -1,    72,
+     -60,    73,    44,   -21,   -60,    73,    47,    62,   -60,    88,
+     -60,    44,    46,   -60,   -60,    -6,    70,    74,    83,   114,
+      52,   -60,   -60,   108,    73,   -60,    26,   -60,   -60,    65,
+     -60,    90,   -60,   -60,   -60,   -60,   -60,   -60,   168,   113,
+     168,   168,    97,   168,   102,   -60,   -60,     1,   168,   168,
+     -60,   -60,   190,   -60,    68,   -60,   -60,   -60,   -60,   291,
+     -60,    31,   -60,   291,   143,   225,    16,    95,   235,   104,
+     168,   -60,   258,   -60,   -60,   -60,   -60,   -60,   -60,   -60,
+     -60,   -60,   -60,   -60,   168,   168,   168,   168,   -60,   -60,
+     168,   111,   114,   168,   114,   168,   153,   -60,   291,   291,
+     291,   291,   -60,   168,   120,   200,   -60,   268,   -60,   291,
+     114,    97,   109,   -60,   115,   -60,   114,   -60
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -558,36 +578,36 @@ static const yytype_int16 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,    18,    19,     0,     3,     4,     5,     7,     0,     1,
-       2,     6,     8,     0,    12,     9,    10,     0,     0,     0,
-       0,     0,     0,     0,     0,    12,    11,     0,    16,     0,
-       0,    14,    13,     0,     0,     0,     0,     0,     0,    20,
-      32,     0,     0,    31,     0,    23,    25,     0,    26,     0,
-      27,    28,    29,    30,    17,     0,     0,     0,     0,    50,
-      51,    54,     0,     0,    49,     0,    52,     0,     0,     0,
-      42,     0,     0,    21,    24,    33,    36,    15,    34,    37,
-       0,    39,    41,     0,     0,    44,     0,    56,    57,    58,
-      59,    60,    61,    64,    65,    62,    63,    69,     0,     0,
-       0,     0,     0,     0,    66,     0,    43,    22,    38,     0,
-       0,     0,    53,     0,    45,    46,    47,    48,     0,     0,
-      40,     0,    55,    70,     0,    67,    35,     0,     0,     0,
-      68
+       0,    19,    20,     0,     3,     4,     5,     7,     0,     1,
+       2,     6,     8,     0,    12,     0,    10,     0,     0,     0,
+       9,     0,     0,     0,    14,     0,     0,    12,    11,     0,
+      17,     0,     0,    16,    13,     0,     0,     0,     0,     0,
+       0,    33,    21,     0,     0,    32,     0,    24,    26,     0,
+      27,     0,    28,    29,    30,    31,    18,    15,     0,     0,
+       0,     0,     0,     0,     0,    51,    52,    55,     0,     0,
+      43,    50,     0,    53,     0,    22,    25,    34,    37,    35,
+      38,     0,    40,    42,     0,     0,     0,     0,     0,     0,
+       0,    45,     0,    57,    58,    59,    60,    61,    62,    65,
+      66,    63,    64,    44,     0,     0,     0,     0,    23,    39,
+       0,     0,     0,     0,     0,     0,     0,    54,    46,    47,
+      48,    49,    41,     0,    70,     0,    67,     0,    56,    36,
+       0,     0,     0,    71,     0,    68,     0,    69
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -66,   -66,   101,   128,    -1,   -66,   -16,   -66,    59,    17,
-      -6,    92,   -36,   -66,   -65,   -66,   -27,   -66,    25,   -66,
-     -10,   -66,   -66,   -66,   -66,   -66,   -66,   -66,   -66
+     -60,   -60,   118,   144,    -2,   -60,    17,   -60,   117,    29,
+       8,   -15,   131,   -38,   -60,   -59,   -60,   -29,   -60,    67,
+     -60,   -36,   -60,   -60,   -60,   -60,   -60,   -60,   -60,   -60
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     3,     4,     5,     6,    15,    16,    22,     7,     8,
-      43,    44,    45,    46,    47,    48,    64,    80,    81,    50,
-      82,    66,    98,    99,   100,   101,    51,    52,    53
+      -1,     3,     4,     5,     6,    15,    16,    23,    24,     7,
+       8,    45,    46,    47,    48,    49,    50,    71,    81,    82,
+      52,    83,    73,   104,   105,   106,   107,    53,    54,    55
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -595,120 +615,118 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      49,    69,   103,    11,    26,    18,     9,    31,    74,    19,
-      49,    59,    60,    61,    49,    28,    62,    49,     1,     2,
-       1,     2,    13,    54,    65,    56,    68,    13,    71,    97,
-      57,    58,   104,    14,    84,    23,    74,    63,    49,    77,
-      11,    49,    21,    17,    42,    49,    78,    55,    83,    59,
-      60,    61,    85,    86,    62,    33,     1,     2,    42,    56,
-      24,    57,   128,    20,    12,    58,    18,    32,    34,    12,
-      35,    36,    37,    38,   111,    63,    25,   123,    27,    59,
-      60,    61,    19,    70,    62,    27,    49,    40,   114,   115,
-     116,   117,    29,   130,    30,   119,   108,    67,   109,   102,
-      75,    76,    49,   105,   113,    63,    79,   118,   124,    33,
-     121,   126,    87,    88,    89,    90,    91,    92,    93,    94,
-      95,    96,    34,   129,    35,    36,    37,    38,    41,    33,
-       1,     2,    10,    72,   120,    33,     0,     0,     0,    27,
-       0,    40,    34,     0,    35,    36,    37,    38,    34,     0,
-      35,    36,    37,    38,     0,    33,     0,     0,     0,    27,
-      39,    40,    33,     0,     0,    27,    73,    40,    34,     0,
-      35,    36,    37,    38,     0,    34,     0,    35,    36,    37,
-      38,     0,     0,     0,     0,    27,   107,    40,     0,     0,
-       0,     0,    27,     0,    40,    87,    88,    89,    90,    91,
-      92,    93,    94,    95,    96,    87,    88,    89,    90,    91,
-      92,    93,    94,    95,    96,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,   106,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,   125,    87,    88,    89,    90,    91,
-      92,    93,    94,    95,    96,    87,    88,    89,    90,    91,
-      92,    93,    94,    95,    96,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,   127,     0,     0,     0,     0,     0,
-       0,   110,    87,    88,    89,    90,    91,    92,    93,    94,
-      95,    96,    87,    88,    89,    90,    91,    92,    93,    94,
-      95,    96,     0,     0,     0,     0,     0,     0,   122,     0,
-       0,     0,     0,     0,   112,    87,    88,    89,    90,    91,
-      92,    93,    94,    95,    96
+      51,    64,    11,    87,    72,     1,     2,    30,    76,    31,
+      51,     9,    32,    13,    51,    18,    56,    51,    13,    14,
+      19,    58,    79,    59,    84,    85,    25,    88,    60,    22,
+      59,    35,    91,    92,    12,    90,    76,    44,    28,    12,
+      25,    11,    33,    58,    36,    51,    37,    38,    39,    40,
+      60,    44,     1,     2,   116,    65,    66,    67,    41,    17,
+      68,   109,    29,    75,   110,    20,    21,    18,   118,   119,
+     120,   121,   134,    35,   124,    26,   126,   125,    27,   127,
+      29,    69,    34,    51,    70,    51,    36,   129,    37,    38,
+      39,    40,   133,    35,     1,     2,    19,    77,   137,    61,
+      41,    51,    86,    62,    29,   108,    36,    51,    37,    38,
+      39,    40,    63,    35,     1,     2,    65,    66,    67,    35,
+      41,    68,    78,    89,    29,    42,    36,   113,    37,    38,
+      39,    40,    36,   115,    37,    38,    39,    40,   123,   130,
+      41,   135,    69,    80,    29,   136,    41,    43,    10,    57,
+      29,    93,    94,    95,    96,    97,    98,    99,   100,   101,
+     102,    93,    94,    95,    96,    97,    98,    99,   100,   101,
+     102,    65,    66,    67,    74,     0,    68,   122,   111,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,   128,     0,
+       0,     0,     0,     0,     0,     0,     0,    69,    93,    94,
+      95,    96,    97,    98,    99,   100,   101,   102,    93,    94,
+      95,    96,    97,    98,    99,   100,   101,   102,     0,     0,
+       0,     0,   103,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,   131,    93,    94,    95,    96,    97,    98,    99,
+     100,   101,   102,    93,    94,    95,    96,    97,    98,    99,
+     100,   101,   102,     0,     0,   112,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,   114,    93,    94,    95,    96,
+      97,    98,    99,   100,   101,   102,    93,    94,    95,    96,
+      97,    98,    99,   100,   101,   102,     0,     0,   117,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,   132,    93,
+      94,    95,    96,    97,    98,    99,   100,   101,   102
 };
 
 static const yytype_int16 yycheck[] =
 {
-      27,    37,    67,     4,    20,    29,     0,    23,    44,    33,
-      37,     3,     4,     5,    41,    21,     8,    44,     6,     7,
-       6,     7,     5,    29,    34,    27,    36,    10,    38,    65,
-      29,    33,    68,     5,    33,    18,    72,    29,    65,    55,
-      41,    68,    30,     5,    27,    72,    56,    30,    58,     3,
-       4,     5,    62,    63,     8,     5,     6,     7,    41,    27,
-       3,    29,   127,    32,     5,    33,    29,    34,    18,    10,
-      20,    21,    22,    23,    84,    29,     5,   113,    35,     3,
-       4,     5,    33,    37,     8,    35,   113,    37,    98,    99,
-     100,   101,    30,   129,    32,   105,    30,    29,    32,     5,
-      37,    37,   129,    21,    19,    29,    30,    37,   118,     5,
-      27,   121,     8,     9,    10,    11,    12,    13,    14,    15,
-      16,    17,    18,    30,    20,    21,    22,    23,    27,     5,
-       6,     7,     4,    41,   109,     5,    -1,    -1,    -1,    35,
-      -1,    37,    18,    -1,    20,    21,    22,    23,    18,    -1,
-      20,    21,    22,    23,    -1,     5,    -1,    -1,    -1,    35,
-      36,    37,     5,    -1,    -1,    35,    36,    37,    18,    -1,
-      20,    21,    22,    23,    -1,    18,    -1,    20,    21,    22,
-      23,    -1,    -1,    -1,    -1,    35,    36,    37,    -1,    -1,
-      -1,    -1,    35,    -1,    37,     8,     9,    10,    11,    12,
-      13,    14,    15,    16,    17,     8,     9,    10,    11,    12,
-      13,    14,    15,    16,    17,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    37,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    37,     8,     9,    10,    11,    12,
-      13,    14,    15,    16,    17,     8,     9,    10,    11,    12,
-      13,    14,    15,    16,    17,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    37,    -1,    -1,    -1,    -1,    -1,
-      -1,    34,     8,     9,    10,    11,    12,    13,    14,    15,
-      16,    17,     8,     9,    10,    11,    12,    13,    14,    15,
-      16,    17,    -1,    -1,    -1,    -1,    -1,    -1,    34,    -1,
-      -1,    -1,    -1,    -1,    30,     8,     9,    10,    11,    12,
-      13,    14,    15,    16,    17
+      29,    39,     4,    62,    40,     6,     7,    22,    46,    30,
+      39,     0,    33,     5,    43,    29,    31,    46,    10,     5,
+      34,    27,    58,    29,    60,    61,    18,    63,    34,    30,
+      29,     5,    68,    69,     5,    34,    74,    29,    21,    10,
+      32,    43,    25,    27,    18,    74,    20,    21,    22,    23,
+      34,    43,     6,     7,    90,     3,     4,     5,    32,     5,
+       8,    30,    36,    37,    33,    32,    33,    29,   104,   105,
+     106,   107,   131,     5,   112,     3,   114,   113,     5,   115,
+      36,    29,    35,   112,    32,   114,    18,   123,    20,    21,
+      22,    23,   130,     5,     6,     7,    34,    32,   136,    29,
+      32,   130,     5,    29,    36,    37,    18,   136,    20,    21,
+      22,    23,    29,     5,     6,     7,     3,     4,     5,     5,
+      32,     8,    32,    21,    36,    37,    18,    32,    20,    21,
+      22,    23,    18,    29,    20,    21,    22,    23,    27,    19,
+      32,    32,    29,    30,    36,    30,    32,    29,     4,    32,
+      36,     8,     9,    10,    11,    12,    13,    14,    15,    16,
+      17,     8,     9,    10,    11,    12,    13,    14,    15,    16,
+      17,     3,     4,     5,    43,    -1,     8,   110,    35,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    35,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    29,     8,     9,
+      10,    11,    12,    13,    14,    15,    16,    17,     8,     9,
+      10,    11,    12,    13,    14,    15,    16,    17,    -1,    -1,
+      -1,    -1,    32,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    32,     8,     9,    10,    11,    12,    13,    14,
+      15,    16,    17,     8,     9,    10,    11,    12,    13,    14,
+      15,    16,    17,    -1,    -1,    30,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    30,     8,     9,    10,    11,
+      12,    13,    14,    15,    16,    17,     8,     9,    10,    11,
+      12,    13,    14,    15,    16,    17,    -1,    -1,    30,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    30,     8,
+       9,    10,    11,    12,    13,    14,    15,    16,    17
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     6,     7,    39,    40,    41,    42,    46,    47,     0,
-      41,    42,    46,    47,     5,    43,    44,     5,    29,    33,
-      32,    30,    45,    47,     3,     5,    44,    35,    48,    30,
-      32,    44,    34,     5,    18,    20,    21,    22,    23,    36,
-      37,    40,    47,    48,    49,    50,    51,    52,    53,    54,
-      57,    64,    65,    66,    48,    47,    27,    29,    33,     3,
-       4,     5,     8,    29,    54,    58,    59,    29,    58,    50,
-      37,    58,    49,    36,    50,    37,    37,    44,    58,    30,
-      55,    56,    58,    58,    33,    58,    58,     8,     9,    10,
-      11,    12,    13,    14,    15,    16,    17,    50,    60,    61,
-      62,    63,     5,    52,    50,    21,    37,    36,    30,    32,
-      34,    58,    30,    19,    58,    58,    58,    58,    37,    58,
-      56,    27,    34,    50,    58,    37,    58,    37,    52,    30,
-      50
+       0,     6,     7,    39,    40,    41,    42,    47,    48,     0,
+      41,    42,    47,    48,     5,    43,    44,     5,    29,    34,
+      32,    33,    30,    45,    46,    48,     3,     5,    44,    36,
+      49,    30,    33,    44,    35,     5,    18,    20,    21,    22,
+      23,    32,    37,    40,    48,    49,    50,    51,    52,    53,
+      54,    55,    58,    65,    66,    67,    49,    46,    27,    29,
+      34,    29,    29,    29,    51,     3,     4,     5,     8,    29,
+      32,    55,    59,    60,    50,    37,    51,    32,    32,    59,
+      30,    56,    57,    59,    59,    59,     5,    53,    59,    21,
+      34,    59,    59,     8,     9,    10,    11,    12,    13,    14,
+      15,    16,    17,    32,    61,    62,    63,    64,    37,    30,
+      33,    35,    30,    32,    30,    29,    59,    30,    59,    59,
+      59,    59,    57,    27,    51,    59,    51,    59,    35,    59,
+      19,    32,    30,    51,    53,    32,    30,    51
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
        0,    38,    39,    39,    39,    40,    40,    41,    41,    42,
-      43,    43,    44,    44,    45,    45,    46,    46,    47,    47,
-      48,    48,    48,    49,    49,    50,    50,    50,    50,    50,
-      50,    50,    50,    51,    52,    52,    53,    54,    54,    55,
-      55,    56,    57,    57,    58,    58,    58,    58,    58,    58,
-      58,    58,    58,    58,    59,    59,    60,    60,    61,    61,
-      62,    62,    62,    62,    63,    63,    64,    64,    65,    66,
-      66
+      43,    43,    44,    44,    45,    45,    46,    47,    47,    48,
+      48,    49,    49,    49,    50,    50,    51,    51,    51,    51,
+      51,    51,    51,    51,    52,    53,    53,    54,    55,    55,
+      56,    56,    57,    58,    58,    59,    59,    59,    59,    59,
+      59,    59,    59,    59,    59,    60,    60,    61,    61,    62,
+      62,    63,    63,    63,    63,    64,    64,    65,    65,    66,
+      67,    67
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     2,     1,     1,     1,     2,     1,     2,     2,
-       1,     3,     1,     4,     2,     4,     5,     6,     1,     1,
-       2,     3,     4,     1,     2,     1,     1,     1,     1,     1,
-       1,     1,     1,     2,     3,     6,     2,     3,     4,     1,
-       3,     1,     2,     3,     2,     3,     3,     3,     3,     1,
-       1,     1,     1,     3,     1,     4,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     1,     3,     5,     9,     3,
-       5
+       0,     2,     2,     1,     1,     1,     2,     1,     2,     3,
+       1,     3,     1,     4,     1,     3,     2,     5,     6,     1,
+       1,     2,     3,     4,     1,     2,     1,     1,     1,     1,
+       1,     1,     1,     1,     2,     3,     6,     2,     3,     4,
+       1,     3,     1,     2,     3,     2,     3,     3,     3,     3,
+       1,     1,     1,     1,     3,     1,     4,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     5,     7,     9,
+       5,     7
 };
 
 
@@ -1385,7 +1403,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 84 "miniC.y" /* yacc.c:1646  */
+#line 101 "miniC.y" /* yacc.c:1646  */
     {
             struct PROGRAM *prog = (struct PROGRAM*) malloc (sizeof (struct PROGRAM));
             prog->decl = (yyvsp[-1].ptr_declaration);
@@ -1393,11 +1411,11 @@ yyreduce:
             head = prog;
             (yyval.ptr_program) = prog;
        }
-#line 1397 "miniC.tab.c" /* yacc.c:1646  */
+#line 1415 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 91 "miniC.y" /* yacc.c:1646  */
+#line 108 "miniC.y" /* yacc.c:1646  */
     {
             struct PROGRAM *prog = (struct PROGRAM*) malloc (sizeof (struct PROGRAM));
             prog->decl = (yyvsp[0].ptr_declaration);
@@ -1405,11 +1423,11 @@ yyreduce:
             head = prog;
             (yyval.ptr_program) = prog;
        }
-#line 1409 "miniC.tab.c" /* yacc.c:1646  */
+#line 1427 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 98 "miniC.y" /* yacc.c:1646  */
+#line 115 "miniC.y" /* yacc.c:1646  */
     {
             struct PROGRAM *prog = (struct PROGRAM*) malloc (sizeof (struct PROGRAM));
             prog->decl = NULL;
@@ -1417,79 +1435,79 @@ yyreduce:
             head = prog;
             (yyval.ptr_program) = prog;
        }
-#line 1421 "miniC.tab.c" /* yacc.c:1646  */
+#line 1439 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 106 "miniC.y" /* yacc.c:1646  */
+#line 123 "miniC.y" /* yacc.c:1646  */
     {
             (yyval.ptr_declaration) = (yyvsp[0].ptr_declaration);
         }
-#line 1429 "miniC.tab.c" /* yacc.c:1646  */
+#line 1447 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 109 "miniC.y" /* yacc.c:1646  */
+#line 126 "miniC.y" /* yacc.c:1646  */
     {
             struct DECLARATION *decl;
             decl = (yyvsp[0].ptr_declaration);
             decl->prev = (yyvsp[-1].ptr_declaration);
             (yyval.ptr_declaration) = decl;
         }
-#line 1440 "miniC.tab.c" /* yacc.c:1646  */
+#line 1458 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 116 "miniC.y" /* yacc.c:1646  */
+#line 133 "miniC.y" /* yacc.c:1646  */
     {
             (yyval.ptr_function) = (yyvsp[0].ptr_function);
         }
-#line 1448 "miniC.tab.c" /* yacc.c:1646  */
+#line 1466 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 119 "miniC.y" /* yacc.c:1646  */
+#line 136 "miniC.y" /* yacc.c:1646  */
     {
             struct FUNCTION *func;
             func = (yyvsp[0].ptr_function);
             func->prev = (yyvsp[-1].ptr_function);
             (yyval.ptr_function) = func;
         }
-#line 1459 "miniC.tab.c" /* yacc.c:1646  */
+#line 1477 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 126 "miniC.y" /* yacc.c:1646  */
+#line 143 "miniC.y" /* yacc.c:1646  */
     {
                 struct DECLARATION *decl = (struct DECLARATION*) malloc (sizeof (struct DECLARATION));
-                decl->t = (yyvsp[-1].type);
-                decl->id = (yyvsp[0].ptr_identifier);
+                decl->t = (yyvsp[-2].type);
+                decl->id = (yyvsp[-1].ptr_identifier);
                 (yyval.ptr_declaration) = decl;
             }
-#line 1470 "miniC.tab.c" /* yacc.c:1646  */
+#line 1488 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 133 "miniC.y" /* yacc.c:1646  */
+#line 150 "miniC.y" /* yacc.c:1646  */
     {
             (yyval.ptr_identifier) = (yyvsp[0].ptr_identifier);
         }
-#line 1478 "miniC.tab.c" /* yacc.c:1646  */
+#line 1496 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 136 "miniC.y" /* yacc.c:1646  */
+#line 153 "miniC.y" /* yacc.c:1646  */
     {
             struct IDENTIFIER *iden;
             iden = (yyvsp[0].ptr_identifier);
             iden->prev = (yyvsp[-2].ptr_identifier);
             (yyval.ptr_identifier) = iden;
         }
-#line 1489 "miniC.tab.c" /* yacc.c:1646  */
+#line 1507 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 143 "miniC.y" /* yacc.c:1646  */
+#line 160 "miniC.y" /* yacc.c:1646  */
     {
             struct IDENTIFIER *iden = (struct IDENTIFIER*) malloc (sizeof (struct IDENTIFIER));
             iden->ID = (yyvsp[0].id);
@@ -1497,11 +1515,11 @@ yyreduce:
             iden->prev = NULL;
             (yyval.ptr_identifier) = iden;
           }
-#line 1501 "miniC.tab.c" /* yacc.c:1646  */
+#line 1519 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 150 "miniC.y" /* yacc.c:1646  */
+#line 167 "miniC.y" /* yacc.c:1646  */
     {
             struct IDENTIFIER *iden = (struct IDENTIFIER*) malloc (sizeof (struct IDENTIFIER));
             iden->ID = (yyvsp[-3].id);
@@ -1509,11 +1527,33 @@ yyreduce:
             iden->prev = NULL;
             (yyval.ptr_identifier) = iden;
            }
-#line 1513 "miniC.tab.c" /* yacc.c:1646  */
+#line 1531 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 158 "miniC.y" /* yacc.c:1646  */
+#line 175 "miniC.y" /* yacc.c:1646  */
+    {
+            struct PARAMETER *param;
+            param = (yyvsp[0].ptr_parameter);
+            param->prev = NULL;
+            (yyval.ptr_parameter) = param;
+        }
+#line 1542 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 15:
+#line 181 "miniC.y" /* yacc.c:1646  */
+    {
+            struct PARAMETER *param;
+            param = (yyvsp[0].ptr_parameter);
+            param->prev = (yyvsp[-2].ptr_parameter);
+            (yyval.ptr_parameter) = param;
+        }
+#line 1553 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 16:
+#line 187 "miniC.y" /* yacc.c:1646  */
     {
             struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
             param->t = (yyvsp[-1].type);
@@ -1521,23 +1561,11 @@ yyreduce:
             param->prev = NULL;
             (yyval.ptr_parameter) = param;
         }
-#line 1525 "miniC.tab.c" /* yacc.c:1646  */
+#line 1565 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 15:
-#line 165 "miniC.y" /* yacc.c:1646  */
-    {
-            struct PARAMETER *param = (struct PARAMETER*) malloc (sizeof (struct PARAMETER));
-            param->t = (yyvsp[-1].type);
-            param->id = (yyvsp[0].ptr_identifier);
-            param->prev = (yyvsp[-3].ptr_parameter);
-            (yyval.ptr_parameter) = param;
-        }
-#line 1537 "miniC.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 16:
-#line 172 "miniC.y" /* yacc.c:1646  */
+  case 17:
+#line 194 "miniC.y" /* yacc.c:1646  */
     {
             struct FUNCTION *func = (struct FUNCTION*) malloc (sizeof (struct FUNCTION));
             func->t = (yyvsp[-4].type);
@@ -1547,11 +1575,11 @@ yyreduce:
             (yyval.ptr_function) = func;
 
         }
-#line 1551 "miniC.tab.c" /* yacc.c:1646  */
+#line 1579 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 17:
-#line 181 "miniC.y" /* yacc.c:1646  */
+  case 18:
+#line 203 "miniC.y" /* yacc.c:1646  */
     {
         struct FUNCTION *func = (struct FUNCTION*) malloc (sizeof (struct FUNCTION));
         func->t = (yyvsp[-5].type);
@@ -1560,23 +1588,23 @@ yyreduce:
         func->cstmt = (yyvsp[0].ptr_compoundstmt);
         (yyval.ptr_function) = func;
     }
-#line 1564 "miniC.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 18:
-#line 190 "miniC.y" /* yacc.c:1646  */
-    { (yyval.type) = eInt;}
-#line 1570 "miniC.tab.c" /* yacc.c:1646  */
+#line 1592 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 191 "miniC.y" /* yacc.c:1646  */
-    { (yyval.type) = eFloat;}
-#line 1576 "miniC.tab.c" /* yacc.c:1646  */
+#line 212 "miniC.y" /* yacc.c:1646  */
+    { (yyval.type) = eInt;}
+#line 1598 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 195 "miniC.y" /* yacc.c:1646  */
+#line 213 "miniC.y" /* yacc.c:1646  */
+    { (yyval.type) = eFloat;}
+#line 1604 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 217 "miniC.y" /* yacc.c:1646  */
     {
                 struct COMPOUNDSTMT *comp = (struct COMPOUNDSTMT*) malloc (sizeof (struct COMPOUNDSTMT));
                 comp->decl = NULL;
@@ -1588,150 +1616,150 @@ yyreduce:
                 */
                 
             }
-#line 1592 "miniC.tab.c" /* yacc.c:1646  */
+#line 1620 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 21:
-#line 206 "miniC.y" /* yacc.c:1646  */
+  case 22:
+#line 228 "miniC.y" /* yacc.c:1646  */
     {
                 struct COMPOUNDSTMT *comp = (struct COMPOUNDSTMT*) malloc (sizeof (struct COMPOUNDSTMT));
                 comp->decl = NULL;
                 comp->stmt = (yyvsp[-1].ptr_stmt);
                 (yyval.ptr_compoundstmt) = comp;
             }
-#line 1603 "miniC.tab.c" /* yacc.c:1646  */
+#line 1631 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 22:
-#line 212 "miniC.y" /* yacc.c:1646  */
+  case 23:
+#line 234 "miniC.y" /* yacc.c:1646  */
     {
                 struct COMPOUNDSTMT *comp = (struct COMPOUNDSTMT*) malloc (sizeof (struct COMPOUNDSTMT));
                 comp->decl = (yyvsp[-2].ptr_declaration);
                 comp->stmt = (yyvsp[-1].ptr_stmt);
                 (yyval.ptr_compoundstmt) = comp;
             }
-#line 1614 "miniC.tab.c" /* yacc.c:1646  */
+#line 1642 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 23:
-#line 219 "miniC.y" /* yacc.c:1646  */
+  case 24:
+#line 241 "miniC.y" /* yacc.c:1646  */
     {
             struct STMT *stmt;
             stmt = (yyvsp[0].ptr_stmt);
             stmt->prev = NULL;
             (yyval.ptr_stmt) = stmt;
         }
-#line 1625 "miniC.tab.c" /* yacc.c:1646  */
+#line 1653 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 24:
-#line 225 "miniC.y" /* yacc.c:1646  */
+  case 25:
+#line 247 "miniC.y" /* yacc.c:1646  */
     {
             struct STMT *stmt;
             stmt = (yyvsp[0].ptr_stmt);
             stmt->prev = (yyvsp[-1].ptr_stmt);
             (yyval.ptr_stmt) = stmt;
         }
-#line 1636 "miniC.tab.c" /* yacc.c:1646  */
+#line 1664 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 25:
-#line 232 "miniC.y" /* yacc.c:1646  */
+  case 26:
+#line 254 "miniC.y" /* yacc.c:1646  */
     { 
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eAssign;
         stmt->stmt.assign_ = (yyvsp[0].ptr_assign);
         (yyval.ptr_stmt) = stmt;
     }
-#line 1647 "miniC.tab.c" /* yacc.c:1646  */
+#line 1675 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 26:
-#line 238 "miniC.y" /* yacc.c:1646  */
+  case 27:
+#line 260 "miniC.y" /* yacc.c:1646  */
     {
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eCall;
         stmt->stmt.call_ = (yyvsp[0].ptr_call);
         (yyval.ptr_stmt) = stmt;
     }
-#line 1658 "miniC.tab.c" /* yacc.c:1646  */
+#line 1686 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 27:
-#line 244 "miniC.y" /* yacc.c:1646  */
+  case 28:
+#line 266 "miniC.y" /* yacc.c:1646  */
     {
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eRet;
         stmt->stmt.return_ = (yyvsp[0].ptr_expr);
         (yyval.ptr_stmt) = stmt;
     }
-#line 1669 "miniC.tab.c" /* yacc.c:1646  */
+#line 1697 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 28:
-#line 250 "miniC.y" /* yacc.c:1646  */
+  case 29:
+#line 272 "miniC.y" /* yacc.c:1646  */
     {
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eWhile;
         stmt->stmt.while_ = (yyvsp[0].ptr_while_s);
         (yyval.ptr_stmt) = stmt;
     }
-#line 1680 "miniC.tab.c" /* yacc.c:1646  */
+#line 1708 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 29:
-#line 256 "miniC.y" /* yacc.c:1646  */
+  case 30:
+#line 278 "miniC.y" /* yacc.c:1646  */
     {
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eFor;
         stmt->stmt.for_ = (yyvsp[0].ptr_for_s);
         (yyval.ptr_stmt) = stmt;
     }
-#line 1691 "miniC.tab.c" /* yacc.c:1646  */
+#line 1719 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 30:
-#line 262 "miniC.y" /* yacc.c:1646  */
+  case 31:
+#line 284 "miniC.y" /* yacc.c:1646  */
     {
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eIf;
         stmt->stmt.if_ = (yyvsp[0].ptr_if_s);
         (yyval.ptr_stmt) = stmt;
     }
-#line 1702 "miniC.tab.c" /* yacc.c:1646  */
+#line 1730 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 31:
-#line 268 "miniC.y" /* yacc.c:1646  */
+  case 32:
+#line 290 "miniC.y" /* yacc.c:1646  */
     {
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eCompound;
         stmt->stmt.cstmt_ = (yyvsp[0].ptr_compoundstmt);
         (yyval.ptr_stmt) = stmt;
     }
-#line 1713 "miniC.tab.c" /* yacc.c:1646  */
+#line 1741 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 32:
-#line 274 "miniC.y" /* yacc.c:1646  */
+  case 33:
+#line 296 "miniC.y" /* yacc.c:1646  */
     {
         struct STMT *stmt = (struct STMT*) malloc (sizeof (struct STMT));
         stmt->s = eSemi;
         (yyval.ptr_stmt) = stmt;
     }
-#line 1723 "miniC.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 33:
-#line 280 "miniC.y" /* yacc.c:1646  */
-    { 
-            (yyval.ptr_assign) = (yyvsp[-1].ptr_assign);
-          }
-#line 1731 "miniC.tab.c" /* yacc.c:1646  */
+#line 1751 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 284 "miniC.y" /* yacc.c:1646  */
+#line 302 "miniC.y" /* yacc.c:1646  */
+    { 
+            (yyval.ptr_assign) = (yyvsp[-1].ptr_assign);
+          }
+#line 1759 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 306 "miniC.y" /* yacc.c:1646  */
     {
             struct ASSIGN *assign = (struct ASSIGN*) malloc (sizeof (struct ASSIGN));
             assign->ID = (yyvsp[-2].id);
@@ -1739,11 +1767,11 @@ yyreduce:
             assign->expr = (yyvsp[0].ptr_expr);
             (yyval.ptr_assign) = assign;
         }
-#line 1743 "miniC.tab.c" /* yacc.c:1646  */
+#line 1771 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 35:
-#line 291 "miniC.y" /* yacc.c:1646  */
+  case 36:
+#line 313 "miniC.y" /* yacc.c:1646  */
     {
             struct ASSIGN *assign = (struct ASSIGN*) malloc (sizeof (struct ASSIGN));
             assign->ID = (yyvsp[-5].id);
@@ -1751,85 +1779,85 @@ yyreduce:
             assign->expr = (yyvsp[0].ptr_expr);
             (yyval.ptr_assign) = assign;
         }
-#line 1755 "miniC.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 36:
-#line 299 "miniC.y" /* yacc.c:1646  */
-    {
-            (yyval.ptr_call) = (yyvsp[-1].ptr_call);
-        }
-#line 1763 "miniC.tab.c" /* yacc.c:1646  */
+#line 1783 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 307 "miniC.y" /* yacc.c:1646  */
+#line 321 "miniC.y" /* yacc.c:1646  */
+    {
+            (yyval.ptr_call) = (yyvsp[-1].ptr_call);
+        }
+#line 1791 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 329 "miniC.y" /* yacc.c:1646  */
     {
         struct CALL *call = (struct CALL*) malloc (sizeof (struct CALL));
         call->ID = (yyvsp[-2].id);
         call->arg = NULL;
         (yyval.ptr_call) = call;
     }
-#line 1774 "miniC.tab.c" /* yacc.c:1646  */
+#line 1802 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 38:
-#line 313 "miniC.y" /* yacc.c:1646  */
+  case 39:
+#line 335 "miniC.y" /* yacc.c:1646  */
     {
         struct CALL *call = (struct CALL*) malloc (sizeof (struct CALL));
         call->ID = (yyvsp[-3].id);
         call->arg = (yyvsp[-1].ptr_arg);
         (yyval.ptr_call) = call;
     }
-#line 1785 "miniC.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 39:
-#line 320 "miniC.y" /* yacc.c:1646  */
-    { (yyval.ptr_arg) = (yyvsp[0].ptr_arg);}
-#line 1791 "miniC.tab.c" /* yacc.c:1646  */
+#line 1813 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 321 "miniC.y" /* yacc.c:1646  */
+#line 342 "miniC.y" /* yacc.c:1646  */
+    { (yyval.ptr_arg) = (yyvsp[0].ptr_arg);}
+#line 1819 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 41:
+#line 343 "miniC.y" /* yacc.c:1646  */
     {
             struct ARG *arg;
             arg = (yyvsp[0].ptr_arg);
             arg->prev = (yyvsp[-2].ptr_arg);
             (yyval.ptr_arg) = arg;
         }
-#line 1802 "miniC.tab.c" /* yacc.c:1646  */
+#line 1830 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 41:
-#line 328 "miniC.y" /* yacc.c:1646  */
+  case 42:
+#line 350 "miniC.y" /* yacc.c:1646  */
     {
     struct ARG *arg = (struct ARG*) malloc (sizeof (struct ARG));
     arg->expr = (yyvsp[0].ptr_expr);
     arg->prev = NULL;
     (yyval.ptr_arg) = arg;
    }
-#line 1813 "miniC.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 42:
-#line 335 "miniC.y" /* yacc.c:1646  */
-    {
-        (yyval.ptr_expr) = NULL;
-        }
-#line 1821 "miniC.tab.c" /* yacc.c:1646  */
+#line 1841 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 338 "miniC.y" /* yacc.c:1646  */
+#line 357 "miniC.y" /* yacc.c:1646  */
     {
-        (yyval.ptr_expr) = (yyvsp[-1].ptr_expr);
-       }
-#line 1829 "miniC.tab.c" /* yacc.c:1646  */
+        (yyval.ptr_expr) = NULL;
+        }
+#line 1849 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 342 "miniC.y" /* yacc.c:1646  */
+#line 360 "miniC.y" /* yacc.c:1646  */
+    {
+        (yyval.ptr_expr) = (yyvsp[-1].ptr_expr);
+       }
+#line 1857 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 364 "miniC.y" /* yacc.c:1646  */
     {
         struct UNOP *unop = (struct UNOP*) malloc (sizeof (struct UNOP));
         unop->u = eNegative;
@@ -1840,11 +1868,11 @@ yyreduce:
         expr->expression.unop_ = unop;
         (yyval.ptr_expr) = expr;
     }
-#line 1844 "miniC.tab.c" /* yacc.c:1646  */
+#line 1872 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 45:
-#line 352 "miniC.y" /* yacc.c:1646  */
+  case 46:
+#line 374 "miniC.y" /* yacc.c:1646  */
     {
         struct ADDIOP *addiop;
         addiop = (yyvsp[-1].ptr_addiop);
@@ -1856,11 +1884,11 @@ yyreduce:
         expr->expression.addiop_ = addiop;
         (yyval.ptr_expr) = expr;
     }
-#line 1860 "miniC.tab.c" /* yacc.c:1646  */
+#line 1888 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 46:
-#line 363 "miniC.y" /* yacc.c:1646  */
+  case 47:
+#line 385 "miniC.y" /* yacc.c:1646  */
     {
         struct MULTOP *multop;
         multop = (yyvsp[-1].ptr_multop);
@@ -1872,11 +1900,11 @@ yyreduce:
         expr->expression.multop_ = multop;
         (yyval.ptr_expr) = expr;
     }
-#line 1876 "miniC.tab.c" /* yacc.c:1646  */
+#line 1904 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 47:
-#line 374 "miniC.y" /* yacc.c:1646  */
+  case 48:
+#line 396 "miniC.y" /* yacc.c:1646  */
     {
         struct RELAOP *relaop;
         relaop = (yyvsp[-1].ptr_relaop);
@@ -1888,11 +1916,11 @@ yyreduce:
         expr->expression.relaop_ = relaop;
         (yyval.ptr_expr) = expr;
     }
-#line 1892 "miniC.tab.c" /* yacc.c:1646  */
+#line 1920 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 48:
-#line 385 "miniC.y" /* yacc.c:1646  */
+  case 49:
+#line 407 "miniC.y" /* yacc.c:1646  */
     {
         struct EQLTOP *eqltop;
         eqltop = (yyvsp[-1].ptr_eqltop);
@@ -1904,212 +1932,212 @@ yyreduce:
         expr->expression.eqltop_ = eqltop;
         (yyval.ptr_expr) = expr;
     }
-#line 1908 "miniC.tab.c" /* yacc.c:1646  */
+#line 1936 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 49:
-#line 396 "miniC.y" /* yacc.c:1646  */
+  case 50:
+#line 418 "miniC.y" /* yacc.c:1646  */
     {
         struct EXPR *expr = (struct EXPR*) malloc (sizeof (struct EXPR));
         expr->e = eCallExpr;  
         expr->expression.call_ = (yyvsp[0].ptr_call);
         (yyval.ptr_expr) = expr;
     }
-#line 1919 "miniC.tab.c" /* yacc.c:1646  */
+#line 1947 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 50:
-#line 402 "miniC.y" /* yacc.c:1646  */
+  case 51:
+#line 424 "miniC.y" /* yacc.c:1646  */
     {
         struct EXPR *expr = (struct EXPR*) malloc (sizeof (struct EXPR));
         expr->e = eIntnum;  
         expr->expression.intnum = (yyvsp[0].intnum);
         (yyval.ptr_expr) = expr;
     }
-#line 1930 "miniC.tab.c" /* yacc.c:1646  */
+#line 1958 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 51:
-#line 408 "miniC.y" /* yacc.c:1646  */
+  case 52:
+#line 430 "miniC.y" /* yacc.c:1646  */
     {
         struct EXPR *expr = (struct EXPR*) malloc (sizeof (struct EXPR));
         expr->e = eFloatnum;  
         expr->expression.floatnum = (yyvsp[0].floatnum);
         (yyval.ptr_expr) = expr;
     }
-#line 1941 "miniC.tab.c" /* yacc.c:1646  */
+#line 1969 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 52:
-#line 414 "miniC.y" /* yacc.c:1646  */
+  case 53:
+#line 436 "miniC.y" /* yacc.c:1646  */
     {
         struct EXPR *expr = (struct EXPR*) malloc (sizeof (struct EXPR));
         expr->e = eId;  
         expr->expression.ID_ = (yyvsp[0].ptr_id_s);
         (yyval.ptr_expr) = expr;
     }
-#line 1952 "miniC.tab.c" /* yacc.c:1646  */
+#line 1980 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 53:
-#line 420 "miniC.y" /* yacc.c:1646  */
+  case 54:
+#line 442 "miniC.y" /* yacc.c:1646  */
     {
         struct EXPR *expr = (struct EXPR*) malloc (sizeof (struct EXPR));
         expr->e = eExpr;  
         expr->expression.bracket = (yyvsp[-1].ptr_expr);
         (yyval.ptr_expr) = expr;
     }
-#line 1963 "miniC.tab.c" /* yacc.c:1646  */
+#line 1991 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 54:
-#line 427 "miniC.y" /* yacc.c:1646  */
+  case 55:
+#line 449 "miniC.y" /* yacc.c:1646  */
     {
         struct ID_S *id_s = (struct ID_S*)malloc(sizeof (struct ID_S));
         id_s->ID = (yyvsp[0].id);
         id_s->expr = NULL;
         (yyval.ptr_id_s) = id_s;
     }
-#line 1974 "miniC.tab.c" /* yacc.c:1646  */
+#line 2002 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 55:
-#line 433 "miniC.y" /* yacc.c:1646  */
+  case 56:
+#line 455 "miniC.y" /* yacc.c:1646  */
     {
         struct ID_S *id_s = (struct ID_S*)malloc(sizeof (struct ID_S));
         id_s->ID = (yyvsp[-3].id);
         id_s->expr = (yyvsp[-1].ptr_expr);
         (yyval.ptr_id_s) = id_s;
     }
-#line 1985 "miniC.tab.c" /* yacc.c:1646  */
+#line 2013 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 56:
-#line 440 "miniC.y" /* yacc.c:1646  */
+  case 57:
+#line 462 "miniC.y" /* yacc.c:1646  */
     {
          struct ADDIOP *addiop = (struct ADDIOP*) malloc (sizeof (struct ADDIOP));
          addiop->a = eMinus;
          (yyval.ptr_addiop) = addiop;
       }
-#line 1995 "miniC.tab.c" /* yacc.c:1646  */
+#line 2023 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 57:
-#line 445 "miniC.y" /* yacc.c:1646  */
+  case 58:
+#line 467 "miniC.y" /* yacc.c:1646  */
     { 
         struct ADDIOP *addiop = (struct ADDIOP*) malloc (sizeof (struct ADDIOP));
         addiop->a = ePlus;
       (yyval.ptr_addiop) = addiop;
       }
-#line 2005 "miniC.tab.c" /* yacc.c:1646  */
+#line 2033 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 58:
-#line 452 "miniC.y" /* yacc.c:1646  */
+  case 59:
+#line 474 "miniC.y" /* yacc.c:1646  */
     {
          struct MULTOP *multop = (struct MULTOP*) malloc (sizeof (struct MULTOP));
          multop->m = eMult;
          (yyval.ptr_multop) = multop;
       }
-#line 2015 "miniC.tab.c" /* yacc.c:1646  */
+#line 2043 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 59:
-#line 457 "miniC.y" /* yacc.c:1646  */
+  case 60:
+#line 479 "miniC.y" /* yacc.c:1646  */
     {
          struct MULTOP *multop = (struct MULTOP*) malloc (sizeof (struct MULTOP));
          multop->m = eDiv;
          (yyval.ptr_multop) = multop;
       }
-#line 2025 "miniC.tab.c" /* yacc.c:1646  */
+#line 2053 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 60:
-#line 463 "miniC.y" /* yacc.c:1646  */
+  case 61:
+#line 485 "miniC.y" /* yacc.c:1646  */
     {
          struct RELAOP *relaop = (struct RELAOP*) malloc (sizeof (struct RELAOP));
          relaop->r = eLE;
          (yyval.ptr_relaop) = relaop;
       }
-#line 2035 "miniC.tab.c" /* yacc.c:1646  */
+#line 2063 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 61:
-#line 468 "miniC.y" /* yacc.c:1646  */
+  case 62:
+#line 490 "miniC.y" /* yacc.c:1646  */
     {
          struct RELAOP *relaop = (struct RELAOP*) malloc (sizeof (struct RELAOP));
          relaop->r = eGE;
          (yyval.ptr_relaop) = relaop;
       }
-#line 2045 "miniC.tab.c" /* yacc.c:1646  */
+#line 2073 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 62:
-#line 473 "miniC.y" /* yacc.c:1646  */
+  case 63:
+#line 495 "miniC.y" /* yacc.c:1646  */
     {
          struct RELAOP *relaop = (struct RELAOP*) malloc (sizeof (struct RELAOP));
          relaop->r = eGT;
          (yyval.ptr_relaop) = relaop;
       }
-#line 2055 "miniC.tab.c" /* yacc.c:1646  */
+#line 2083 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 63:
-#line 478 "miniC.y" /* yacc.c:1646  */
+  case 64:
+#line 500 "miniC.y" /* yacc.c:1646  */
     { 
          struct RELAOP *relaop = (struct RELAOP*) malloc (sizeof (struct RELAOP));
          relaop->r = eLT;
          (yyval.ptr_relaop) = relaop;
       }
-#line 2065 "miniC.tab.c" /* yacc.c:1646  */
+#line 2093 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 64:
-#line 484 "miniC.y" /* yacc.c:1646  */
+  case 65:
+#line 506 "miniC.y" /* yacc.c:1646  */
     {
          struct EQLTOP *eqltop = (struct EQLTOP*) malloc (sizeof (struct EQLTOP));
          eqltop->e = eEQ;
          (yyval.ptr_eqltop) = eqltop;
       }
-#line 2075 "miniC.tab.c" /* yacc.c:1646  */
+#line 2103 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 65:
-#line 489 "miniC.y" /* yacc.c:1646  */
+  case 66:
+#line 511 "miniC.y" /* yacc.c:1646  */
     { 
          struct EQLTOP *eqltop = (struct EQLTOP*) malloc (sizeof (struct EQLTOP));
          eqltop->e = eNE;
          (yyval.ptr_eqltop) = eqltop;
       }
-#line 2085 "miniC.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 66:
-#line 495 "miniC.y" /* yacc.c:1646  */
-    {
-           struct WHILE_S* while_s = (struct WHILE_S*) malloc (sizeof(struct WHILE_S));
-           while_s->do_while = false;
-           while_s->cond = (yyvsp[-1].ptr_expr);
-           while_s->stmt = (yyvsp[0].ptr_stmt);
-           (yyval.ptr_while_s) = while_s;
-        }
-#line 2097 "miniC.tab.c" /* yacc.c:1646  */
+#line 2113 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 502 "miniC.y" /* yacc.c:1646  */
+#line 517 "miniC.y" /* yacc.c:1646  */
     {
            struct WHILE_S* while_s = (struct WHILE_S*) malloc (sizeof(struct WHILE_S));
-           while_s->do_while = true;
-           while_s->cond = (yyvsp[-1].ptr_expr);
-           while_s->stmt = (yyvsp[-3].ptr_stmt);
+           while_s->do_while = false;
+           while_s->cond = (yyvsp[-2].ptr_expr);
+           while_s->stmt = (yyvsp[0].ptr_stmt);
            (yyval.ptr_while_s) = while_s;
         }
-#line 2109 "miniC.tab.c" /* yacc.c:1646  */
+#line 2125 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 510 "miniC.y" /* yacc.c:1646  */
+#line 524 "miniC.y" /* yacc.c:1646  */
+    {
+           struct WHILE_S* while_s = (struct WHILE_S*) malloc (sizeof(struct WHILE_S));
+           while_s->do_while = true;
+           while_s->cond = (yyvsp[-2].ptr_expr);
+           while_s->stmt = (yyvsp[-5].ptr_stmt);
+           (yyval.ptr_while_s) = while_s;
+        }
+#line 2137 "miniC.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 69:
+#line 532 "miniC.y" /* yacc.c:1646  */
     {
            struct FOR_S *for_s = (struct FOR_S*) malloc (sizeof(struct FOR_S));
            for_s->init = (yyvsp[-6].ptr_assign);
@@ -2118,35 +2146,35 @@ yyreduce:
            for_s->stmt = (yyvsp[0].ptr_stmt);
            (yyval.ptr_for_s) = for_s;
         }
-#line 2122 "miniC.tab.c" /* yacc.c:1646  */
+#line 2150 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 69:
-#line 519 "miniC.y" /* yacc.c:1646  */
+  case 70:
+#line 541 "miniC.y" /* yacc.c:1646  */
     {
        struct IF_S *if_s = (struct IF_S*) malloc (sizeof(struct IF_S));
-       if_s->cond=(yyvsp[-1].ptr_expr);
+       if_s->cond=(yyvsp[-2].ptr_expr);
        if_s->if_=(yyvsp[0].ptr_stmt);
        if_s->else_=NULL;
        (yyval.ptr_if_s) = if_s;
     }
-#line 2134 "miniC.tab.c" /* yacc.c:1646  */
+#line 2162 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
-  case 70:
-#line 526 "miniC.y" /* yacc.c:1646  */
+  case 71:
+#line 548 "miniC.y" /* yacc.c:1646  */
     {
        struct IF_S *if_s = (struct IF_S*) malloc (sizeof(struct IF_S));
-       if_s->cond=(yyvsp[-3].ptr_expr);
+       if_s->cond=(yyvsp[-4].ptr_expr);
        if_s->if_=(yyvsp[-2].ptr_stmt);
        if_s->else_=(yyvsp[0].ptr_stmt);
        (yyval.ptr_if_s) = if_s;
       }
-#line 2146 "miniC.tab.c" /* yacc.c:1646  */
+#line 2174 "miniC.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2150 "miniC.tab.c" /* yacc.c:1646  */
+#line 2178 "miniC.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2374,36 +2402,33 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 534 "miniC.y" /* yacc.c:1906  */
+#line 556 "miniC.y" /* yacc.c:1906  */
 
-void dfs();
-void bfs();
+void doProcess();
 int main(int argc, char* argv[]) {
     //헤드 초기화, 만일 토큰이 없다면 dfs(), bfs() 를 작동하지 않게 함.
     head = NULL;
-    
-    FILE *fp;
+    scopeHead = NULL;
+    scopeTail = NULL;
     //print AST
     fp = fopen("tree.txt","w");
+    fp2 = fopen("table.txt","w");
     if(!yyparse())
-        dfs();
-
+        doProcess();
     fprintf(fp, "\n");
     close(fp);
-    //make Symbol table
-    fp = fopen("table.txt","w");
-    bfs();
-    close(fp);
+    close(fp2);
     return 0;
 }
-
-
-void dfs() {
-
-
-}
-
-void bfs() {
-
-
+void doProcess() {
+    //TODO
+    if(head == NULL)
+        exit(1);
+    //make global node
+    scopeHead = newScope(sGLOBAL, NULL);
+    scopeTail = scopeHead;
+    if(head->decl != NULL)
+        visitDeclaration(head->decl);
+    if(head->func != NULL)
+        visitFunction(head->func);
 }

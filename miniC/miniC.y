@@ -3,13 +3,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include "AST.h"
-
-
+#include "print.h"
+#include "symboltable.h"
+//global variables which can be used in other .c .h
 struct PROGRAM *head;
+FILE *fp;   //for AST
+FILE *fp2;  //for symboltable 
 void yyerror(char* text) {
 
     fprintf(stderr, "%s\n", text);
 }
+/*
+void lyyerror(YYLTYPE t, char *s, ...)
+{
+    va_list ap;
+    va_start(ap, s);
+
+    if(t.first_line)
+        fprintf(stderr, "%d.%d-%d.%d: error: ", t.first_line, t.first_column, t.last_line, t.last_column);
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
+}
+*/
 %}
 
 %union{
@@ -33,6 +48,7 @@ void yyerror(char* text) {
     struct RELAOP        *ptr_relaop;
     struct EQLTOP        *ptr_eqltop;
     Type_e type;
+    //TODO int, float to char*
     int intnum;
     float floatnum;
     char* id;
@@ -498,17 +514,17 @@ Eqltop: EQ {
          $$ = eqltop;
       }
       ;
-While_s: WHILE Expr Stmt {
+While_s: WHILE '(' Expr ')'  Stmt  {
            struct WHILE_S* while_s = (struct WHILE_S*) malloc (sizeof(struct WHILE_S));
            while_s->do_while = false;
-           while_s->cond = $2;
-           while_s->stmt = $3;
+           while_s->cond = $3;
+           while_s->stmt = $5;
            $$ = while_s;
         }
-         | DO Stmt WHILE Expr ';' {
+         | DO  Stmt  WHILE '(' Expr ')' ';' {
            struct WHILE_S* while_s = (struct WHILE_S*) malloc (sizeof(struct WHILE_S));
            while_s->do_while = true;
-           while_s->cond = $4;
+           while_s->cond = $5;
            while_s->stmt = $2;
            $$ = while_s;
         }
@@ -522,50 +538,47 @@ For_s: FOR '(' Assign ';' Expr ';' Assign ')' Stmt {
            $$ = for_s;
         }
        ;
-If_s: IF Expr Stmt %prec LOWER_THAN_ELSE {
+If_s: IF '(' Expr ')' Stmt %prec LOWER_THAN_ELSE {
        struct IF_S *if_s = (struct IF_S*) malloc (sizeof(struct IF_S));
-       if_s->cond=$2;
-       if_s->if_=$3;
+       if_s->cond=$3;
+       if_s->if_=$5;
        if_s->else_=NULL;
        $$ = if_s;
     }
-      | IF Expr Stmt ELSE Stmt{
+      | IF '(' Expr ')' Stmt ELSE Stmt{
        struct IF_S *if_s = (struct IF_S*) malloc (sizeof(struct IF_S));
-       if_s->cond=$2;
-       if_s->if_=$3;
-       if_s->else_=$5;
+       if_s->cond=$3;
+       if_s->if_=$5;
+       if_s->else_=$7;
        $$ = if_s;
       }
       ;
 %%
-void dfs();
-void bfs();
+void doProcess();
 int main(int argc, char* argv[]) {
     //헤드 초기화, 만일 토큰이 없다면 dfs(), bfs() 를 작동하지 않게 함.
     head = NULL;
-    
-    FILE *fp;
+    scopeHead = NULL;
+    scopeTail = NULL;
     //print AST
     fp = fopen("tree.txt","w");
+    fp2 = fopen("table.txt","w");
     if(!yyparse())
-        dfs();
-
+        doProcess();
     fprintf(fp, "\n");
     close(fp);
-    //make Symbol table
-    fp = fopen("table.txt","w");
-    bfs();
-    close(fp);
+    close(fp2);
     return 0;
 }
-
-
-void dfs() {
-
-
-}
-
-void bfs() {
-
-
+void doProcess() {
+    //TODO
+    if(head == NULL)
+        exit(1);
+    //make global node
+    scopeHead = newScope(sGLOBAL, NULL);
+    scopeTail = scopeHead;
+    if(head->decl != NULL)
+        visitDeclaration(head->decl);
+    if(head->func != NULL)
+        visitFunction(head->func);
 }

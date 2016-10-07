@@ -1,6 +1,7 @@
-miniC (using flex&bison) by Yubi Lee, Sungmin Kim by pair-programming
+miniC (using flex&bison)
 ========
-This project is compiler project using flex and bison.
+This project is compiler project using flex and bison
+by Yubi Lee, Sungmin Kim by pair-programming.
 
 ## 1. Building
     make

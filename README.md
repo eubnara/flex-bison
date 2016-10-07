@@ -19,6 +19,7 @@ This project is compiler project using flex and bison.
     Symbol table: table.txt
 
 ## 4. We follow the rule below.
+
     Program := (DeclList)? (FuncList)?   // DeclList FuncList | DeclList | FuncList | ε
     DeclList := (Declaration)+          // Declaration | DeclList Declaration
     FuncList := (Function)+
@@ -41,6 +42,7 @@ This project is compiler project using flex and bison.
         1. ++, --
         2. According to this rule 
             CompoundStmt := { (DeclList)? StmtList }
+            
            Followings are illegal: 
             int main()
             {

@@ -1,18 +1,11 @@
-int main ()
+int main (int a, int b)
 {
 int i;
-while (i < 3)
-{
-{
 int a;
-a  = a + i;
-do{
-if (i < 3)
-printf(3);
-}
-while (i < 3.000230);
-}
 a  = 2;
+for (i  = 0; i < 10; i  = i + 1)
+{
+a  = a + i;
 }
 return 0;
 }

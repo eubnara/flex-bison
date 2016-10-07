@@ -11,22 +11,68 @@ extern FILE *fp2;
 //global variable for making symboltable
 int _rowNumber;
 Type_e _curType;
+bool _isParam = false;
+bool _needPrinted = false;
+
+void printScopePath() {
+    //when printing global variable
+    if(scopeTail->type == sGLOBAL) {
+        fprintf(fp2, "\n");
+        return;  //print nothing at "location"
+    }
+   else {
+       fprintf(fp2, "%s", _curFuncName);
+       struct scope* curNode = scopeTail;//start from Function node
+       while(curNode->child != NULL) {
+           fprintf(fp2, " - ");
+            switch(curNode->child->type) {
+                case sDOWHILE:
+                    fprintf(fp2, "DOWHILE");
+                    break;
+
+                case sWHILE:
+                    fprintf(fp2, "WHILE");
+                    break;
+
+                case sFOR:
+                    fprintf(fp2, "FOR");
+                    break;
+
+                case sIF:
+                    fprintf(fp2, "IF");
+                    break;
+
+                case sCOMPOUND:
+                    fprintf(fp2, "COMPOUND");
+                    break;
+            }
+            fprintf(fp2, "(%d) ", getMyOrder(curNode->child->type, curNode));
+       }
+       fprintf(fp2, "\n");
+   }
+
+}
+
 
 
 //print symboltable, called before entering visitDeclaration
-void printTitle(char* fname) {
+void printTitle() {
 
     _rowNumber = 1;
 
-    fprintf( fp2, "Function name : %s\n",fname);
-    fprintf( fp2, "%10s%10s%10s%10s\n", "count","type","name","array","role");
+    fprintf( fp2, "Function name : ");
+    printScopePath();
+    fprintf( fp2, "%10s%10s%10s%10s%10s\n", "count","type","name","array","role");
 }
 
 
 
 void visitDeclaration   (struct DECLARATION* decl) {
+    _isParam = false;   //needed when we have to decide it is parameter or variable.
     if(decl->prev != NULL)
         visitDeclaration(decl->prev);
+    else
+        printTitle();
     switch(decl->t) {
         case eInt:
             fprintf (fp, "int ");    
@@ -40,12 +86,20 @@ void visitDeclaration   (struct DECLARATION* decl) {
             fprintf(stderr, "Declaration does not exist.\n");
             exit(1);
     }
+    _needPrinted = true;
     visitIdentifier(decl->id);
+    _needPrinted = false;
     fprintf (fp, ";\n");
 }
 void visitFunction      (struct FUNCTION* func) {
-    if(func->prev != NULL)
+    if(func->prev != NULL) {
         visitFunction(func->prev);
+    }
+    //for symboltable
+    _curFuncName = func->ID;
+    //list node
+    scopeTail = newScope(sFUNC, scopeTail); //append it to the end of list
+
     switch(func->t) {
         case eInt:
             fprintf (fp, "int ");    
@@ -63,6 +117,9 @@ void visitFunction      (struct FUNCTION* func) {
     fprintf (fp, ")\n");//function name
     visitCompoundStmt(func->cstmt); //compoundStmt
     fprintf(fp, "\n");
+
+    //deleteCurScope 
+    deleteScope(scopeTail);
 }
 void visitIdentifier    (struct IDENTIFIER* iden) {
     if(iden->prev != NULL) {
@@ -72,10 +129,28 @@ void visitIdentifier    (struct IDENTIFIER* iden) {
     fprintf (fp, "%s", iden->ID);
     if(iden->intnum > 0) {
         fprintf (fp, "[%d]", iden->intnum);
+
+
+        if( _needPrinted == true) {
+            char* curType;
+            if(_curType == eInt)
+                curType = "int";
+            else
+                curType = "float";
+            fprintf( fp2, "%10d%10s%10s%10d%10s\n", _rowNumber++ , curType, iden->ID, iden->intnum, _isParam ? "parameter" : "variable");
+        }
     } else if(iden->intnum < 0) {
         fprintf(stderr, "minus array");
     } else { 
         //scalar
+        if( _needPrinted == true) {
+            char* curType;
+            if(_curType == eInt)
+                curType = "int";
+            else
+                curType = "float";
+            fprintf( fp2, "%10d%10s%10s%10s%10s\n", _rowNumber++ , curType, iden->ID, "", _isParam ? "parameter" : "variable"); //_rowNumber(x) ++_rowNumber(x) _rowNumber++(o)
+        }
     }
 }
 void visitStmt          (struct STMT* stmt) {
@@ -127,23 +202,30 @@ void visitStmt          (struct STMT* stmt) {
     fprintf(fp, "\n");
 }
 void visitParameter     (struct PARAMETER* param) {
+    _isParam = true;
     if(param->prev != NULL) {
         visitParameter(param->prev);
         fprintf (fp, ", ");
     }
+    else
+        printTitle();
     switch(param->t) {
         case eInt:
             fprintf (fp, "int ");    
+            _curType = eInt;
             break;
         case eFloat:
             fprintf (fp, "float ");
+            _curType = eFloat;
             break;
         default:
             fprintf(stderr, "Declaration does not exist.\n");
             exit(1);
     }
-
+    _needPrinted = true;
     visitIdentifier(param->id);
+    _needPrinted = false;
+
 
 }
 void visitCompoundStmt  (struct COMPOUNDSTMT* cstmt) {
@@ -265,19 +347,31 @@ void visitExpr          (struct EXPR* expr) {
 }
 void visitWhile_s       (struct WHILE_S* while_s) {
     if(while_s->do_while == true) {
+        //making node for symbol table
+        scopeTail = newScope(sDOWHILE, scopeTail);
+
         fprintf(fp, "do");
         visitStmt(while_s->stmt);
         fprintf(fp, "while (");
         visitExpr(while_s->cond);
         fprintf(fp, ");\n");
     } else {
+        //making node for symbol table
+        scopeTail = newScope(sWHILE, scopeTail);
+
         fprintf(fp, "while (");
         visitExpr(while_s->cond);
         fprintf(fp, ")\n");
         visitStmt(while_s->stmt);
     }
+
+    //deleteCurScope 
+    deleteScope(scopeTail);
 }
 void visitFor_s         (struct FOR_S* for_s) {
+    //making node for symbol table
+    scopeTail = newScope(sFOR, scopeTail);
+
     fprintf(fp, "for (");
     visitAssignStmt(for_s->init);
     fprintf(fp, "; ");  
@@ -286,8 +380,14 @@ void visitFor_s         (struct FOR_S* for_s) {
     visitAssignStmt(for_s->inc);
     fprintf(fp, ")\n");
     visitStmt(for_s->stmt);
+
+    //deleteCurScope 
+    deleteScope(scopeTail);
 }
 void visitIf_s          (struct IF_S* if_s) {
+    //making node for symbol table
+    scopeTail = newScope(sIF, scopeTail);
+
     fprintf(fp, "if (");
     visitExpr(if_s->cond);
     fprintf(fp, ")\n");
@@ -296,6 +396,9 @@ void visitIf_s          (struct IF_S* if_s) {
         fprintf(fp,"\nelse\n");
         visitStmt(if_s->else_);
     }
+
+    //deleteCurScope 
+    deleteScope(scopeTail);
 }
 void visitId_s          (struct ID_S* id_s) {
    fprintf(fp,"%s",id_s->ID);

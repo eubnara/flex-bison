@@ -1,7 +1,5 @@
-
 #include <stdlib.h>
 #include "symboltable.h"
-
 //make node
 struct scope* newScope(SCOPETYPE type, struct scope* parent) {
     struct scope* node = (struct scope*) malloc (sizeof(struct scope));
@@ -28,25 +26,25 @@ void deleteScope(struct scope* curScope) {
     if(curScope->parent != NULL) {
         curScope->parent->child = NULL;
     }   
-    free(curScope);
+//    free(curScope);
 }
 
 //returns the order of current scope
 int getMyOrder(SCOPETYPE type, struct scope* parent) {
     switch(type) {
-        case eDOWHILE:
+        case sDOWHILE:
             return ++(parent->dowhile_n);
 
-        case eWHILE:
+        case sWHILE:
             return ++(parent->while_n);
 
-        case eFOR:
+        case sFOR:
             return ++(parent->for_n);
 
-        case eIF:
+        case sIF:
             return ++(parent->if_n);
 
-        case eCOMPOUND:
+        case sCOMPOUND:
             return ++(parent->compound_n);
     }
 }

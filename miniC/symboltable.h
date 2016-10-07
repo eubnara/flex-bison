@@ -1,4 +1,4 @@
-typedef enum { sFUNC, sDOWHILE, sWHILE, sFOR, sIF, sCOMPOUND } SCOPETYPE; //s : scope
+typedef enum { sGLOBAL, sFUNC, sDOWHILE, sWHILE, sFOR, sIF, sCOMPOUND } SCOPETYPE; //s : scope
 
 struct scope {
     int dowhile_n;  //_n: number
@@ -12,7 +12,7 @@ struct scope {
 };
 
 struct scope *scopeHead, *scopeTail;
-char* curFuncName;
+char* _curFuncName;
 
 //make node
 struct scope* newScope(SCOPETYPE type, struct scope* parent);

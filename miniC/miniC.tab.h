@@ -79,7 +79,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 28 "miniC.y" /* yacc.c:1909  */
+#line 30 "miniC.y" /* yacc.c:1909  */
 
     struct PROGRAM       *ptr_program;
     struct DECLARATION   *ptr_declaration;

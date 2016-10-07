@@ -4,9 +4,11 @@
 #include <string.h>
 #include "AST.h"
 #include "print.h"
+#include "symboltable.h"
 //global variables which can be used in other .c .h
 struct PROGRAM *head;
-FILE *fp; 
+FILE *fp;   //for AST
+FILE *fp2;  //for symboltable 
 void yyerror(char* text) {
 
     fprintf(stderr, "%s\n", text);
@@ -552,36 +554,31 @@ If_s: IF '(' Expr ')' Stmt %prec LOWER_THAN_ELSE {
       }
       ;
 %%
-void printAST();
-void bfs();
+void doProcess();
 int main(int argc, char* argv[]) {
     //헤드 초기화, 만일 토큰이 없다면 dfs(), bfs() 를 작동하지 않게 함.
     head = NULL;
-    
+    scopeHead = NULL;
+    scopeTail = NULL;
     //print AST
     fp = fopen("tree.txt","w");
+    fp2 = fopen("table.txt","w");
     if(!yyparse())
-        printAST();
+        doProcess();
     fprintf(fp, "\n");
     close(fp);
-    //make Symbol table
-    fp = fopen("table.txt","w");
-    bfs();
-    close(fp);
+    close(fp2);
     return 0;
 }
-
-void printAST() {
+void doProcess() {
     //TODO
     if(head == NULL)
         exit(1);
+    //make global node
+    scopeHead = newScope(sGLOBAL, NULL);
+    scopeTail = scopeHead;
     if(head->decl != NULL)
         visitDeclaration(head->decl);
     if(head->func != NULL)
         visitFunction(head->func);
-}
-
-void bfs() {
-
-
 }

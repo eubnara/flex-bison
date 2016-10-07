@@ -1,4 +1,7 @@
 all:
-    flex miniC.l    
+    flex miniC.l
     bison -d miniC.y
-    gcc -o miniC lex.yy.c miniC.tab.c -lfl -g
+    gcc -o miniC miniC.tab.c print.c symboltable.c lex.yy.c -g -lfl
+
+clean:
+	rm -rf lex.yy.c miniC.tab.c miniC.tab.h miniC tree.txt table.txt

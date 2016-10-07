@@ -18,7 +18,7 @@ char* _curFuncName;
 struct scope* newScope(SCOPETYPE type, struct scope* parent);
 
 //delete node
-void deleteScope(struct scope* curScope);
+void deleteScope(struct scope** scopeTail);
 
 //returns the order of current scope
 int getMyOrder(SCOPETYPE type, struct scope* parent);

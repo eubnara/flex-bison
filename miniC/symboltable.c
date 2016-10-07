@@ -21,11 +21,16 @@ struct scope* newScope(SCOPETYPE type, struct scope* parent) {
     return node;
 }
 
-//delete node
-void deleteScope(struct scope* curScope) {
-    if(curScope->parent != NULL) {
-        curScope->parent->child = NULL;
-    }   
+//scopeTail denotes curScope node
+void deleteScope(struct scope** scopeTail) {
+    struct scope* curScope = *scopeTail;
+    struct scope* parent = curScope->parent;
+    if(parent != NULL) {
+        parent->child = NULL;
+        (*scopeTail) = parent;
+        free(curScope);
+      } 
+      
 //    free(curScope);
 }
 
@@ -33,19 +38,19 @@ void deleteScope(struct scope* curScope) {
 int getMyOrder(SCOPETYPE type, struct scope* parent) {
     switch(type) {
         case sDOWHILE:
-            return ++(parent->dowhile_n);
+            return (parent->dowhile_n);
 
         case sWHILE:
-            return ++(parent->while_n);
+            return (parent->while_n);
 
         case sFOR:
-            return ++(parent->for_n);
+            return (parent->for_n);
 
         case sIF:
-            return ++(parent->if_n);
+            return (parent->if_n);
 
         case sCOMPOUND:
-            return ++(parent->compound_n);
+            return (parent->compound_n);
     }
 }
 

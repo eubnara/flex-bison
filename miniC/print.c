@@ -13,16 +13,20 @@ int _rowNumber;
 Type_e _curType;
 bool _isParam = false;
 bool _needPrinted = false;
+bool _isTitlePrinted = false;
+bool _isOtherComp = false;
+bool _isCompound = false;
 
 void printScopePath() {
     //when printing global variable
     if(scopeTail->type == sGLOBAL) {
-        fprintf(fp2, "\n");
+        fprintf( fp2, "Global variables\n");
         return;  //print nothing at "location"
     }
    else {
+        fprintf( fp2, "\nFunction name : ");
        fprintf(fp2, "%s", _curFuncName);
-       struct scope* curNode = scopeTail;//start from Function node
+       struct scope* curNode = scopeHead->child;//start from Function node
        while(curNode->child != NULL) {
            fprintf(fp2, " - ");
             switch(curNode->child->type) {
@@ -47,6 +51,7 @@ void printScopePath() {
                     break;
             }
             fprintf(fp2, "(%d) ", getMyOrder(curNode->child->type, curNode));
+            curNode = curNode->child;
        }
        fprintf(fp2, "\n");
    }
@@ -60,7 +65,6 @@ void printTitle() {
 
     _rowNumber = 1;
 
-    fprintf( fp2, "Function name : ");
     printScopePath();
     fprintf( fp2, "%10s%10s%10s%10s%10s\n", "count","type","name","array","role");
 }
@@ -69,10 +73,14 @@ void printTitle() {
 
 void visitDeclaration   (struct DECLARATION* decl) {
     _isParam = false;   //needed when we have to decide it is parameter or variable.
-    if(decl->prev != NULL)
+    if(decl->prev != NULL) {
         visitDeclaration(decl->prev);
-    else
+    }
+    if(!_isTitlePrinted) {
         printTitle();
+        _isTitlePrinted = true;
+    }
+
     switch(decl->t) {
         case eInt:
             fprintf (fp, "int ");    
@@ -112,14 +120,19 @@ void visitFunction      (struct FUNCTION* func) {
             exit(1);
     }
     fprintf (fp, "%s (", func->ID);//function name
-    if(func->param != NULL)
+    _isTitlePrinted = false;
+    if(func->param != NULL) {
+        printTitle();
+        _isTitlePrinted = true;
         visitParameter(func->param);    //parameter 
+    }
     fprintf (fp, ")\n");//function name
     visitCompoundStmt(func->cstmt); //compoundStmt
     fprintf(fp, "\n");
 
     //deleteCurScope 
-    deleteScope(scopeTail);
+    deleteScope(&scopeTail);
+    _isTitlePrinted = false;
 }
 void visitIdentifier    (struct IDENTIFIER* iden) {
     if(iden->prev != NULL) {
@@ -180,16 +193,21 @@ void visitStmt          (struct STMT* stmt) {
             break;
 
         case eWhile:
+             _isOtherComp = true;
             visitWhile_s(stmt->stmt.while_);
             return;
         case eFor:
+             _isOtherComp = true;
             visitFor_s(stmt->stmt.for_);
             return;
         case eIf:
+             _isOtherComp = true;
             visitIf_s(stmt->stmt.if_);
             return;
 
         case eCompound:
+            if(_isOtherComp == false)
+                _isCompound = true;
             visitCompoundStmt(stmt->stmt.cstmt_);
             return;
             //break;
@@ -207,8 +225,6 @@ void visitParameter     (struct PARAMETER* param) {
         visitParameter(param->prev);
         fprintf (fp, ", ");
     }
-    else
-        printTitle();
     switch(param->t) {
         case eInt:
             fprintf (fp, "int ");    
@@ -225,18 +241,29 @@ void visitParameter     (struct PARAMETER* param) {
     _needPrinted = true;
     visitIdentifier(param->id);
     _needPrinted = false;
-
-
 }
 void visitCompoundStmt  (struct COMPOUNDSTMT* cstmt) {
+    if(_isCompound == true) {
+        //making node for symbol table
+        scopeTail = newScope(sCOMPOUND, scopeTail);
+        _isTitlePrinted = false;
+        scopeTail->parent->compound_n++;
+    }
+    _isOtherComp = false;
+
     fprintf(fp, "{\n");
     if(cstmt->decl != NULL) { 
-
         visitDeclaration(cstmt->decl);
     }
     if(cstmt->stmt != NULL)
         visitStmt(cstmt->stmt);
     fprintf(fp, "}\n");
+
+    if(_isCompound == true) {
+        deleteScope(&scopeTail);
+    }
+    _isCompound = false;
+    _isOtherComp = false;
 }
 void visitAssignStmt    (struct ASSIGN* assign) {
     fprintf(fp, "%s ",assign->ID);
@@ -349,6 +376,8 @@ void visitWhile_s       (struct WHILE_S* while_s) {
     if(while_s->do_while == true) {
         //making node for symbol table
         scopeTail = newScope(sDOWHILE, scopeTail);
+        _isTitlePrinted = false;
+        scopeTail->parent->dowhile_n++;
 
         fprintf(fp, "do");
         visitStmt(while_s->stmt);
@@ -358,6 +387,8 @@ void visitWhile_s       (struct WHILE_S* while_s) {
     } else {
         //making node for symbol table
         scopeTail = newScope(sWHILE, scopeTail);
+        _isTitlePrinted = false;
+        scopeTail->parent->while_n++;
 
         fprintf(fp, "while (");
         visitExpr(while_s->cond);
@@ -366,11 +397,13 @@ void visitWhile_s       (struct WHILE_S* while_s) {
     }
 
     //deleteCurScope 
-    deleteScope(scopeTail);
+    deleteScope(&scopeTail);
 }
 void visitFor_s         (struct FOR_S* for_s) {
     //making node for symbol table
     scopeTail = newScope(sFOR, scopeTail);
+    _isTitlePrinted = false;
+    scopeTail->parent->for_n++;
 
     fprintf(fp, "for (");
     visitAssignStmt(for_s->init);
@@ -382,11 +415,13 @@ void visitFor_s         (struct FOR_S* for_s) {
     visitStmt(for_s->stmt);
 
     //deleteCurScope 
-    deleteScope(scopeTail);
+    deleteScope(&scopeTail);
 }
 void visitIf_s          (struct IF_S* if_s) {
     //making node for symbol table
     scopeTail = newScope(sIF, scopeTail);
+    _isTitlePrinted = false;
+    scopeTail->parent->if_n++;
 
     fprintf(fp, "if (");
     visitExpr(if_s->cond);
@@ -398,7 +433,7 @@ void visitIf_s          (struct IF_S* if_s) {
     }
 
     //deleteCurScope 
-    deleteScope(scopeTail);
+    deleteScope(&scopeTail);
 }
 void visitId_s          (struct ID_S* id_s) {
    fprintf(fp,"%s",id_s->ID);

@@ -40,16 +40,5 @@ This project is compiler project using flex and bison.
     
     So, Our miniC program doesn't follow the rule below.
         1. ++, --
-        2. According to this rule 
-            CompoundStmt := { (DeclList)? StmtList }
-            
-           Followings are illegal: 
-            int main()
-            {
-                int a;
-                {
-                    int b; // this is wrong because there is no "StmtList".
-                }
-            }
         
    

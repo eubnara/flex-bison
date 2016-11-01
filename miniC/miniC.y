@@ -237,6 +237,12 @@ CompoundStmt: '{' '}' {
                 comp->stmt = $3;
                 $$ = comp;
             }
+            |  '{' DeclList '}' {
+                struct COMPOUNDSTMT *comp = (struct COMPOUNDSTMT*) malloc (sizeof (struct COMPOUNDSTMT));
+                comp->decl = $2;
+                comp->stmt = NULL;
+                $$ = comp;
+            }
             ;
 StmtList: Stmt {
             struct STMT *stmt;
